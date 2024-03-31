@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// Définition du modèle pour les utilisateurs
+model Users {
+  id       String     @id @default(auto()) @map("_id") @db.ObjectId
+  username String // Nom d'utilisateur unique
+  email    String     @unique // Adresse e-mail de l'utilisateur
+  password String // Mot de passe de l'utilisateur
+  // Ajoutez d'autres champs utilisateur si nécessaire, comme le nom, la bio, etc.
+  Posts    Posts[]
+  Comments Comments[]
+  Likes    Likes[]
+}
+
+// Définition du modèle pour les publications
+model Posts {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId // Identifiant unique de la publication
+  title     String // Titre de la publication
+  content   String // Contenu de la publication
+  author    Users      @relation(fields: [userId], references: [id]) // Relation à l'utilisateur qui a écrit la publication
+  createdAt DateTime   @default(now()) // Date de création de la publication
+  userId    String
+  comments  Comments[]
+  likes     Likes[]
+}
+
+// Définition du modèle pour les commentaires
+model Comments {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId // Identifiant unique du commentaire
+  content   String // Contenu du commentaire
+  author    Users    @relation(fields: [userId], references: [id]) // Relation à l'utilisateur qui a écrit le commentaire
+  post      Posts    @relation(fields: [postId], references: [id]) // Relation à la publication à laquelle le commentaire est associé
+  createdAt DateTime @default(now()) // Date de création du commentaire
+  userId    String
+  postId    String
+}
+
+// Définition du modèle pour les likes
+model Likes {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId // Identifiant unique du like
+  user   Users  @relation(fields: [userId], references: [id]) // Relation à l'utilisateur qui a aimé la publication
+  post   Posts  @relation(fields: [postId], references: [id]) // Relation à la publication aimée
+  userId String
+  postId String
+}
+
+model Tests {
+  id   String @id @default(auto()) @map("_id") @db.ObjectId // Identifiant unique du like
+  name String
+}
